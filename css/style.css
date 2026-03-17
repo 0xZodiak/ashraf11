@@ -102,8 +102,14 @@ img {
 }
 
 .premium-section-alt {
-  background: linear-gradient(135px, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   position: relative;
+}
+
+/* --- Pulse Green Animation (chatbot typing indicator) --- */
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 /* --- Accordion Styles --- */

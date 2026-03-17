@@ -49,12 +49,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Note: adding a class .fade-in-up in CSS if needed */
 
+  /* --- Accordion Toggle Logic --- */
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const item = header.parentElement;
+      const isActive = item.classList.contains('active');
+
+      // Close all other accordions (optional: remove this block to allow multiple open)
+      document.querySelectorAll('.accordion-item').forEach(otherItem => {
+        otherItem.classList.remove('active');
+      });
+
+      // Toggle clicked accordion
+      if (!isActive) {
+        item.classList.add('active');
+      }
+    });
+  });
+
   /* --- Property Card Flip Logic --- */
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.property-card');
     if (card) {
       // Prevent flip if clicking the WhatsApp button (let it open the link)
       if (e.target.closest('.btn-whatsapp')) return;
+      // Prevent flip if clicking accordion header
+      if (e.target.closest('.accordion-header')) return;
       
       card.classList.toggle('flipped');
     }
