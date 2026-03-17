@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="chatbot-messages" id="chatMessages">
                     <div class="msg msg-bot">
-                        مرحباً بك في شركة أشرف عبد الفتاح! كيف يمكنني مساعدتك اليوم؟
+                        مرحباً بك في مؤسسة أشرف عبد الفتاح! كيف يمكنني مساعدتك اليوم؟
                         <div class="msg-options">
                             <span class="msg-option" onclick="sendExampleMessage('عايز شقة')">عايز شقة</span>
                             <span class="msg-option" onclick="sendExampleMessage('سعر العمرة كام')">سعر العمرة كام؟</span>
