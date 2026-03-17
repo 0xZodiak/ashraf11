@@ -94,53 +94,81 @@ function filterProperties(btn) {
   const msg = document.getElementById('reFilterMsg');
   const accordions = document.querySelectorAll('.accordion-item');
 
-  // Get or create the flat results container
-  let flatGrid = document.getElementById('reFilterGrid');
-  if (!flatGrid) {
-    flatGrid = document.createElement('div');
-    flatGrid.id = 'reFilterGrid';
-    flatGrid.style.cssText = 'display:none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px;';
-    document.getElementById('reFilterMsg').after(flatGrid);
-  }
+  let matchCount = 0;
 
   if (filter === 'all') {
-    // Show accordions, hide flat grid
-    accordions.forEach(acc => acc.style.display = '');
-    flatGrid.style.display = 'none';
+    // Show all accordions and all cards within them
+    accordions.forEach(acc => {
+      acc.style.display = '';
+      // Also ensure content is visible if it was hidden
+      const content = acc.querySelector('.accordion-content');
+      if(content) content.style.display = '';
+      
+      const cards = acc.querySelectorAll('.property-card[data-type]');
+      cards.forEach(card => card.classList.remove('hidden-card'));
+    });
     msg.style.display = 'none';
+    
+    // Hide the empty state message if it exists
+    const emptyMsg = document.getElementById('reEmptyMsg');
+    if(emptyMsg) emptyMsg.style.display = 'none';
     return;
   }
 
-  // Hide all accordion sections
-  accordions.forEach(acc => acc.style.display = 'none');
+  // Handle specific filters
+  accordions.forEach(acc => {
+    let hasVisibleCards = false;
+    const cards = acc.querySelectorAll('.property-card[data-type]');
+    
+    cards.forEach(card => {
+      if (card.dataset.type === filter) {
+        card.classList.remove('hidden-card');
+        hasVisibleCards = true;
+        matchCount++;
+      } else {
+        card.classList.add('hidden-card');
+      }
+    });
 
-  // Collect matching cards
-  const matchingCards = Array.from(document.querySelectorAll('.property-card[data-type]'))
-    .filter(card => card.dataset.type === filter);
+    // Hide the entire accordion section if it has no matching cards
+    if (hasVisibleCards) {
+      acc.style.display = '';
+      // Ensure the accordion content is visible (force open when filtering)
+      acc.classList.add('active');
+    } else {
+      acc.style.display = 'none';
+    }
+  });
 
-  if (matchingCards.length === 0) {
-    flatGrid.innerHTML = `
-      <div style="grid-column:1/-1; text-align:center; padding:40px 20px; color:#888;">
+  // Handle empty state
+  let emptyMsg = document.getElementById('reEmptyMsg');
+  if (matchCount === 0) {
+    if (!emptyMsg) {
+      // Create empty message container only when needed
+      const container = document.querySelector('.re-filter-header').parentNode;
+      emptyMsg = document.createElement('div');
+      emptyMsg.id = 'reEmptyMsg';
+      emptyMsg.style.cssText = 'text-align:center; padding:40px 20px; color:#888; margin-top: 30px;';
+      emptyMsg.innerHTML = `
         <i class="fas fa-search" style="font-size:3rem; display:block; margin-bottom:15px; color:#555;"></i>
-        <h4 style="color:#ccc; margin-bottom:10px;">لا يوجد من هذا النوع حالياً</h4>
-        <p style="color:#777;">تواصل معنا وسنوفر لك ما تريد</p>
+        <h4 style="color:#ccc; margin-bottom:10px; font-size:1.5rem;">لا يوجد من هذا النوع حالياً</h4>
+        <p style="color:#777; font-size:1.1rem;">تواصل معنا وسنوفر لك ما تريد</p>
         <a href="https://wa.me/201114570201" class="btn btn-whatsapp" style="display:inline-flex; margin-top:20px;">
           <i class="fab fa-whatsapp"></i> تواصل معنا
-        </a>
-      </div>`;
-    flatGrid.style.display = 'grid';
-    msg.style.display = 'none';
-    return;
+        </a>`;
+      // Insert after the accordions or filter header (finding appropriate place)
+      const lastAccordion = Array.from(accordions).pop();
+      if(lastAccordion) {
+          lastAccordion.parentNode.insertBefore(emptyMsg, lastAccordion.nextSibling);
+      }
+    }
+    emptyMsg.style.display = 'block';
+  } else {
+    // Hide empty state if there are matches
+    if(emptyMsg) emptyMsg.style.display = 'none';
   }
 
-  // Clone and display matching cards in flat grid
-  flatGrid.innerHTML = '';
-  matchingCards.forEach(card => {
-    flatGrid.appendChild(card.cloneNode(true));
-  });
-  flatGrid.style.display = 'grid';
-
   const labels = { land: 'الأراضي', apartment: 'الشقق', villa: 'الفيلل', commercial: 'المحلات التجارية' };
-  msg.textContent = `عرض ${matchingCards.length} عقار من نوع: ${labels[filter] || filter}`;
+  msg.textContent = `عرض ${matchCount} عقار من نوع: ${labels[filter] || filter}`;
   msg.style.display = 'block';
 }
